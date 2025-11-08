@@ -1,0 +1,75 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.2.0] - 2025-11-08
+
+### Added
+- Initial release of groundingdino-cu128 fork
+- PyTorch 2.7+ and CUDA 12.8 support
+- shadow_dino wrapper namespace for alternative imports
+- Dual import support: `import groundingdino` and `import shadow_dino`
+- Comprehensive test suite with 5 tests
+- GitHub Actions CI/CD pipelines
+- Code quality and security workflows
+- Apache License 2.0 compliance
+
+### Changed
+- Upgraded from PyTorch 1.x to PyTorch 2.7+
+- Fixed CUDA compilation for modern PyTorch API
+- Updated deprecated PyTorch tensor methods (.type() → .scalar_type())
+- Modernized build system with pyproject.toml
+- Distribution name changed to groundingdino-cu128
+
+### Fixed
+- CUDA compilation errors with PyTorch 2.x
+- AT_DISPATCH_FLOATING_TYPES compatibility issues
+- Deprecated tensor.type().is_cuda() calls
+
+### Technical Details
+- Python support: 3.9, 3.10, 3.11, 3.12
+- CUDA support: 12.6, 12.8
+- PyTorch version: >=2.7.0, <2.8
+- Build system: setuptools with pyproject.toml
+
+### Attribution
+This is a maintained fork of [GroundingDINO](https://github.com/IDEA-Research/GroundingDINO) by IDEA-Research.
+Original authors and contributors are credited in the README.md.
+
+---
+
+## Template for Future Releases
+
+### [Unreleased]
+
+#### Added
+- New features
+
+#### Changed
+- Changes in existing functionality
+
+#### Deprecated
+- Soon-to-be removed features
+
+#### Removed
+- Removed features
+
+#### Fixed
+- Bug fixes
+
+#### Security
+- Security vulnerability fixes
+
+---
+
+## Release Process
+
+1. Update version in `pyproject.toml`
+2. Update CHANGELOG.md with release notes
+3. Create git tag: `git tag -a v0.2.0 -m "Release v0.2.0"`
+4. Push tag: `git push origin v0.2.0`
+5. GitHub Actions will automatically build and publish to PyPI
+6. Create GitHub Release with changelog notes

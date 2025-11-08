@@ -1,0 +1,181 @@
+name: Code Quality
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: Linting and Style Checks
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+        cache: 'pip'
+
+    - name: Install linting tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 black isort mypy pylint
+
+    - name: Run Black (code formatter check)
+      run: |
+        black --check --diff groundingdino shadow_dino tests
+      continue-on-error: true
+
+    - name: Run isort (import sorting check)
+      run: |
+        isort --check-only --diff groundingdino shadow_dino tests
+      continue-on-error: true
+
+    - name: Run flake8
+      run: |
+        # E501: line too long (handled by black)
+        # W503: line break before binary operator (conflicts with black)
+        # F401: imported but unused (common in __init__.py)
+        flake8 groundingdino shadow_dino tests \
+          --count \
+          --max-line-length=127 \
+          --extend-ignore=E501,W503,F401 \
+          --statistics
+      continue-on-error: true
+
+    - name: Run pylint
+      run: |
+        pip install -r requirements.txt
+        pylint groundingdino shadow_dino --exit-zero --disable=all \
+          --enable=unused-import,undefined-variable,invalid-name
+      continue-on-error: true
+
+  security:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Install security tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install bandit safety
+
+    - name: Run Bandit (security linter)
+      run: |
+        bandit -r groundingdino shadow_dino -ll -f screen
+      continue-on-error: true
+
+    - name: Run Safety (dependency vulnerability check)
+      run: |
+        pip install -r requirements.txt
+        safety check --json || true
+      continue-on-error: true
+
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Dependency Review
+      uses: actions/dependency-review-action@v4
+      with:
+        fail-on-severity: moderate
+
+  validate-metadata:
+    name: Validate Package Metadata
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Validate pyproject.toml
+      run: |
+        python -c "
+        import tomllib
+        import sys
+
+        with open('pyproject.toml', 'rb') as f:
+            config = tomllib.load(f)
+
+        errors = []
+
+        # Validate required fields
+        if config['project']['name'] != 'groundingdino-cu128':
+            errors.append('Package name must be groundingdino-cu128')
+
+        if 'ghostcipher1' not in config['project']['authors'][0]['name'].lower():
+            errors.append('Author must be ghostcipher1')
+
+        if 'Apache' not in str(config['project']['license']):
+            errors.append('License must be Apache 2.0')
+
+        # Check for forbidden references
+        import json
+        config_str = json.dumps(config).lower()
+        if 'nightvyper' in config_str or 'night vyper' in config_str:
+            errors.append('Found forbidden nightvyper reference')
+
+        if errors:
+            print('❌ Metadata validation failed:')
+            for error in errors:
+                print(f'  - {error}')
+            sys.exit(1)
+        else:
+            print('✓ Package metadata is valid')
+        "
+
+    - name: Validate README
+      run: |
+        if ! grep -q "Apache License 2.0" README.md && ! grep -q "apache.org/licenses" README.md; then
+          echo "⚠ README should reference Apache License"
+        fi
+        if ! grep -q "IDEA-Research/GroundingDINO" README.md; then
+          echo "❌ README must credit original source"
+          exit 1
+        fi
+        echo "✓ README validation passed"
+
+    - name: Check file structure
+      run: |
+        required_files=(
+          "pyproject.toml"
+          "README.md"
+          "LICENSE"
+          "requirements.txt"
+          "groundingdino/__init__.py"
+          "shadow_dino/__init__.py"
+          "tests/test_import_names.py"
+        )
+
+        for file in "${required_files[@]}"; do
+          if [ ! -f "$file" ]; then
+            echo "❌ Missing required file: $file"
+            exit 1
+          fi
+        done
+
+        echo "✓ All required files present"

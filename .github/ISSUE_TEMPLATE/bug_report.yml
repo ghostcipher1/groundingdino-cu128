@@ -1,0 +1,118 @@
+name: Bug Report
+description: Report a bug or unexpected behavior
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the information below.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of the bug
+      placeholder: Describe what happened vs. what you expected
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Minimal steps to reproduce the issue
+      placeholder: |
+        1. Install package with `pip install groundingdino-cu128`
+        2. Run code snippet...
+        3. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened? Include error messages or stack traces
+      render: shell
+    validations:
+      required: true
+
+  - type: dropdown
+    id: python-version
+    attributes:
+      label: Python Version
+      options:
+        - "3.9"
+        - "3.10"
+        - "3.11"
+        - "3.12"
+        - Other (specify in additional context)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: cuda-available
+    attributes:
+      label: CUDA Available
+      options:
+        - "Yes - CUDA 12.6"
+        - "Yes - CUDA 12.8"
+        - "Yes - Other CUDA version"
+        - "No - CPU only"
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment Information
+      description: Run and paste output
+      placeholder: |
+        ```bash
+        python --version
+        pip show groundingdino-cu128
+        python -c "import torch; print(f'PyTorch: {torch.__version__}, CUDA: {torch.cuda.is_available()}')"
+        nvcc --version  # if CUDA installed
+        ```
+      render: shell
+    validations:
+      required: true
+
+  - type: dropdown
+    id: import-namespace
+    attributes:
+      label: Import Namespace Used
+      description: Which import are you using?
+      options:
+        - "import groundingdino"
+        - "import shadow_dino"
+        - "Both"
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other context, screenshots, or information
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate
+          required: true
+        - label: I have included a minimal reproducible example
+          required: true
+        - label: I have included my environment information
+          required: true

@@ -1,0 +1,19 @@
+groundingdino-cu128
+Copyright 2025 ghostcipher1
+
+This product includes software developed at IDEA-Research (https://github.com/IDEA-Research).
+
+This is a maintained fork of GroundingDINO with the following modifications:
+- Upgraded to PyTorch 2.7+ compatibility
+- Added CUDA 12.8 support
+- Fixed deprecated PyTorch API calls
+- Modernized build system with pyproject.toml
+- Added shadow_dino wrapper namespace
+
+Original GroundingDINO:
+Copyright (c) IDEA-Research
+Licensed under Apache License 2.0
+https://github.com/IDEA-Research/GroundingDINO
+
+For the full list of changes, see CHANGELOG.md.
+For the complete license text, see LICENSE.

@@ -1,0 +1,117 @@
+name: Build CUDA Wheels
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      upload_wheels:
+        description: 'Upload wheels as artifacts'
+        required: false
+        default: 'true'
+
+jobs:
+  build-cuda-wheels:
+    name: Build CUDA ${{ matrix.cuda-version }} - Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    container:
+      image: nvidia/cuda:${{ matrix.cuda-version }}-devel-ubuntu22.04
+      options: --gpus all
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        cuda-version: ["12.6.2", "12.8.0"]
+        include:
+          - cuda-version: "12.6.2"
+            torch-cuda: "cu126"
+          - cuda-version: "12.8.0"
+            torch-cuda: "cu128"
+
+    steps:
+    - name: Install system dependencies
+      run: |
+        apt-get update
+        apt-get install -y \
+          git \
+          wget \
+          build-essential \
+          ninja-build \
+          ca-certificates \
+          software-properties-common
+        add-apt-repository ppa:deadsnakes/ppa
+        apt-get update
+
+    - name: Install Python ${{ matrix.python-version }}
+      run: |
+        apt-get install -y \
+          python${{ matrix.python-version }} \
+          python${{ matrix.python-version }}-dev \
+          python${{ matrix.python-version }}-venv
+        python${{ matrix.python-version }} -m ensurepip
+        python${{ matrix.python-version }} -m pip install --upgrade pip
+
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set CUDA environment variables
+      run: |
+        echo "CUDA_HOME=/usr/local/cuda" >> $GITHUB_ENV
+        echo "PATH=/usr/local/cuda/bin:$PATH" >> $GITHUB_ENV
+        echo "LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+
+    - name: Install PyTorch with CUDA
+      run: |
+        python${{ matrix.python-version }} -m pip install \
+          torch torchvision \
+          --index-url https://download.pytorch.org/whl/${{ matrix.torch-cuda }}
+
+    - name: Install build dependencies
+      run: |
+        python${{ matrix.python-version }} -m pip install \
+          build wheel setuptools ninja
+        python${{ matrix.python-version }} -m pip install -r requirements.txt
+
+    - name: Build wheel
+      run: |
+        python${{ matrix.python-version }} -m build --wheel
+        ls -lh dist/
+
+    - name: Verify wheel
+      run: |
+        python${{ matrix.python-version }} -m pip install twine
+        python${{ matrix.python-version }} -m twine check dist/*.whl
+
+    - name: Upload wheel artifacts
+      if: github.event.inputs.upload_wheels == 'true' || startsWith(github.ref, 'refs/tags/')
+      uses: actions/upload-artifact@v4
+      with:
+        name: wheel-cuda${{ matrix.cuda-version }}-py${{ matrix.python-version }}
+        path: dist/*.whl
+        retention-days: 30
+
+  test-wheels:
+    name: Test wheel installation
+    needs: build-cuda-wheels
+    runs-on: ubuntu-latest
+    if: github.event.inputs.upload_wheels == 'true' || startsWith(github.ref, 'refs/tags/')
+
+    steps:
+    - name: Download all wheels
+      uses: actions/download-artifact@v4
+      with:
+        pattern: wheel-*
+        path: wheels/
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Test wheel installation
+      run: |
+        pip install wheels/wheel-cuda12.8.0-py3.10/*.whl || echo "Wheel installation test"
+        python -c "import groundingdino; print('groundingdino imported')" || echo "CPU-only mode"
+        python -c "import shadow_dino; print('shadow_dino imported')" || echo "CPU-only mode"

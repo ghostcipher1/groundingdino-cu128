@@ -1,0 +1,71 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel", "torch>=2.7.0,<2.8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "groundingdino-cu128"
+version = "0.2.0"
+description = "Upgraded GroundingDINO for PyTorch 2.7 + CUDA 12.8 (maintained fork)"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.9"
+authors = [
+    { name = "ghostcipher1", email = "ghostcipher1@users.noreply.github.com" }
+]
+maintainers = [
+    { name = "ghostcipher1", email = "ghostcipher1@users.noreply.github.com" }
+]
+keywords = [
+    "computer-vision",
+    "object-detection",
+    "grounding",
+    "dino",
+    "transformer",
+    "pytorch",
+    "cuda"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Image Recognition",
+]
+dependencies = [
+    "torch>=2.7.0,<2.8",
+    "torchvision>=0.18.0",
+    "transformers",
+    "addict",
+    "yapf",
+    "timm",
+    "numpy",
+    "opencv-python",
+    "supervision==0.4.0",
+    "pycocotools",
+]
+
+[project.urls]
+Homepage = "https://github.com/ghostcipher1/groundingdino-cu128"
+Repository = "https://github.com/ghostcipher1/groundingdino-cu128"
+"Issue Tracker" = "https://github.com/ghostcipher1/groundingdino-cu128/issues"
+Documentation = "https://github.com/ghostcipher1/groundingdino-cu128#readme"
+"Original Source" = "https://github.com/IDEA-Research/GroundingDINO"
+
+[tool.setuptools]
+zip-safe = false
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["groundingdino*", "shadow_dino*"]
+exclude = ["tests*", "demo*", "configs*"]
+
+[tool.setuptools.package-data]
+groundingdino = ["**/*.cu", "**/*.cpp", "**/*.h", "**/*.py"]
+shadow_dino = ["**/*.py"]
