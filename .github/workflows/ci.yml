@@ -91,7 +91,7 @@ jobs:
         python -m build --sdist
 
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: dist-cpu
         path: dist/*.tar.gz
