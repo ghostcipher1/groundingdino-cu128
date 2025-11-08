@@ -100,7 +100,7 @@ jobs:
 
     steps:
     - name: Download all wheels
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v6
       with:
         pattern: wheel-*
         path: wheels/
