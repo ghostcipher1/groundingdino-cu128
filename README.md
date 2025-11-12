@@ -9,6 +9,29 @@
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
 [![PyPI](https://img.shields.io/badge/PyPI-groundingdino--cu128-blue.svg)](https://pypi.org/project/groundingdino-cu128/)
 [![Docker](https://img.shields.io/badge/Docker-GHCR-blue.svg)](https://github.com/ghostcipher1/groundingdino-cu128/pkgs/container/groundingdino-cu128)
+![Branch Protection](https://img.shields.io/badge/branch--protection-enabled-brightgreen?style=flat&logo=github)
+
+---
+
+### 🛡️ Branch Protection Policy
+
+The `main` branch of **GroundingDINO-CU128** is fully protected to maintain build integrity and code quality.
+
+| Rule | Description |
+|------|--------------|
+| ✅ **Pull Requests Required** | All commits must go through a PR — direct pushes to `main` are blocked. |
+| ✅ **Signed Commits** | Every commit must be verified (GPG / SSH signature required). |
+| ✅ **1 Approval Minimum** | Each PR requires at least one review approval before merge. |
+| ✅ **Status Checks Required** | PRs must pass all required workflows:<br>• `CI – Test Suite / tests`<br>• `Code Quality / ruff`<br>• `Code Quality / mypy` |
+| 🔄 **Up-to-Date with `main`** | Branches must be rebased or merged with the latest `main` before merging. |
+| 🧱 **No Force Push / No Deletion** | The `main` branch cannot be force-pushed or deleted. |
+
+**Merge methods enabled:** Merge, Squash, and Rebase  
+**Administrator enforcement:** Active (rules apply equally to maintainers)
+
+---
+
+🧩 _Maintainers use feature branches for all development and release PRs are automatically verified through GitHub Actions CI before merging._
 
 ---
 
@@ -58,7 +81,7 @@ Description
 <img src=".asset/hero_figure.png" alt="ODinW" width="100%">
 </details>
 
-
+---
 
 ## Why This Fork?
 
