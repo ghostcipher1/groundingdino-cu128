@@ -65,6 +65,7 @@ build/
 dist/
 *.egg-info/
 *.whl
+groundingdino_cu128-*/
 
 # MacOS
 .DS_Store
