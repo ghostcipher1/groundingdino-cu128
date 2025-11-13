@@ -8,7 +8,7 @@ on:
       test_pypi:
         description: 'Upload to Test PyPI instead of PyPI'
         required: false
-        default: 'true'
+        default: true
         type: boolean
 
 permissions:
@@ -21,109 +21,108 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v5
-      with:
-        fetch-depth: 0  # Full history for proper versioning
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for proper versioning
 
-    - name: Set up Python
-      uses: actions/setup-python@v6
-      with:
-        python-version: '3.10'
-        cache: 'pip'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
 
-    - name: Install build dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install build twine
-        pip install -r requirements.txt
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine tomli
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-    - name: Verify version matches tag
-      if: github.event_name == 'release'
-      run: |
-        pip install tomli
-        TAG_VERSION="${GITHUB_REF#refs/tags/v}"
-        PACKAGE_VERSION=$(python -c "try:
-    import tomllib
-except ImportError:
-    import tomli as tomllib
-print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
-        if [ "$TAG_VERSION" != "$PACKAGE_VERSION" ]; then
-          echo "Error: Tag version ($TAG_VERSION) does not match package version ($PACKAGE_VERSION)"
-          exit 1
-        fi
-        echo "✓ Version verified: $PACKAGE_VERSION"
+      - name: Verify version matches tag
+        if: ${{ github.event_name == 'release' }}
+        run: |
+          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
+          PACKAGE_VERSION=$(python -c "import tomli; print(tomli.load(open('pyproject.toml', 'rb'))['project']['version'])")
+          if [ "$TAG_VERSION" != "$PACKAGE_VERSION" ]; then
+            echo "Error: Tag version ($TAG_VERSION) does not match package version ($PACKAGE_VERSION)"
+            exit 1
+          fi
+          echo "✓ Version verified: $PACKAGE_VERSION"
 
-    - name: Build source distribution
-      run: |
-        python -m build --sdist
-        ls -lh dist/
+      - name: Build source distribution
+        run: |
+          python -m build --sdist
+          ls -lh dist/
 
-    - name: Check distribution
-      run: |
-        twine check dist/*
+      - name: Check distribution
+        run: |
+          twine check dist/*
 
-    - name: Publish to Test PyPI
-      if: github.event.inputs.test_pypi == 'true' || github.event_name == 'workflow_dispatch'
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        repository-url: https://test.pypi.org/legacy/
-        skip-existing: true
-        verbose: true
+      - name: Publish to Test PyPI
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.test_pypi }}
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          skip-existing: true
+          verbose: true
 
-    - name: Publish to PyPI
-      if: github.event_name == 'release' && github.event.action == 'published'
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        skip-existing: true
-        verbose: true
+      - name: Publish to PyPI
+        if: ${{ github.event_name == 'release' && github.event.action == 'published' }}
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true
+          verbose: true
 
-    - name: Create release summary
-      run: |
-        echo "## 📦 Release Summary" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "**Package:** groundingdino-cu128" >> $GITHUB_STEP_SUMMARY
-        echo "**Version:** $(python -c "try:
-    import tomllib
-except ImportError:
-    import tomli as tomllib
-print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")" >> $GITHUB_STEP_SUMMARY
-        echo "**Python Support:** 3.9, 3.10, 3.11, 3.12" >> $GITHUB_STEP_SUMMARY
-        echo "**CUDA Support:** 12.6, 12.8" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### Installation" >> $GITHUB_STEP_SUMMARY
-        echo '```bash' >> $GITHUB_STEP_SUMMARY
-        echo "pip install groundingdino-cu128" >> $GITHUB_STEP_SUMMARY
-        echo '```' >> $GITHUB_STEP_SUMMARY
+      - name: Create release summary
+        run: |
+          VERSION=$(python -c "import tomli; print(tomli.load(open('pyproject.toml', 'rb'))['project']['version'])")
+          {
+            echo "## 📦 Release Summary"
+            echo ""
+            echo "**Package:** groundingdino-cu128"
+            echo "**Version:** ${VERSION}"
+            echo "**Python Support:** 3.9, 3.10, 3.11, 3.12"
+            echo "**CUDA Support:** 12.6, 12.8"
+            echo ""
+            echo "### Installation"
+            echo '```bash'
+            echo "pip install groundingdino-cu128"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
   verify-installation:
     name: Verify PyPI installation
     needs: build-and-publish
     runs-on: ubuntu-latest
-    if: github.event_name == 'release'
+    if: ${{ github.event_name == 'release' }}
 
     steps:
-    - name: Set up Python
-      uses: actions/setup-python@v6
-      with:
-        python-version: '3.10'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
 
-    - name: Wait for PyPI to update
-      run: sleep 60
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
 
-    - name: Install from PyPI
-      run: |
-        pip install groundingdino-cu128
-        python -c "import groundingdino; print(f'✓ groundingdino imported successfully')"
-        python -c "import shadow_dino; print(f'✓ shadow_dino imported successfully')"
-        python -c "import shadow_dino; print(f'Version: {shadow_dino.__version__}')"
+      - name: Wait for PyPI to update
+        run: sleep 60
 
-    - name: Verify dual imports
-      run: |
-        python -c "
-        import groundingdino
-        import shadow_dino
-        print('✓ Both import namespaces work')
-        print(f'shadow_dino version: {shadow_dino.__version__}')
-        print(f'CUDA available: {shadow_dino.__cuda_available__}')
-        "
+      - name: Install from PyPI
+        run: |
+          pip install groundingdino-cu128
+          python -c "import groundingdino; print('✓ groundingdino imported successfully')"
+          python -c "import shadow_dino; print('✓ shadow_dino imported successfully')"
+          python -c "import shadow_dino; print(f'Version: {shadow_dino.__version__}')"
+
+      - name: Verify dual imports
+        run: |
+          python - << 'PY'
+import groundingdino
+import shadow_dino
+
+print('✓ Both import namespaces work')
+print(f'shadow_dino version: {shadow_dino.__version__}')
+cuda_attr = getattr(shadow_dino, "__cuda_available__", "unknown")
+print(f'CUDA available: {cuda_attr}')
+PY
