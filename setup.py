@@ -40,7 +40,7 @@ except ImportError:
     CUDAExtension = None
 
 # groundingdino version info
-version = "0.2.1"
+version = "2025.2.1"
 package_name = "groundingdino-cu128"
 cwd = os.path.dirname(os.path.abspath(__file__))
 

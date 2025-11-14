@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.2.1] - 2025-11-13
+## [2025.2.1] - 2025-11-13
 
 ### Fixed
 - **GitHub Actions build failures** - Fixed `CalledProcessError` during package build in CI/CD pipelines
@@ -28,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Backward compatible - no changes to user installation process
 - Tests remain passing with relaxed CUDA extension checks
 
-## [0.2.0] - 2025-11-08
+## [2025.2.0] - 2025-11-08
 
 ### Added
 - Initial release of groundingdino-cu128 fork
@@ -92,7 +92,7 @@ Original authors and contributors are credited in the README.md (root directory)
 
 1. Update version in `pyproject.toml`
 2. Update docs/CHANGELOG.md with release notes
-3. Create git tag: `git tag -a v0.2.0 -m "Release v0.2.0"`
-4. Push tag: `git push origin v0.2.0`
+3. Create git tag: `git tag -a v2025.2.0 -m "Release v2025.2.0"`
+4. Push tag: `git push origin v2025.2.0`
 5. GitHub Actions will automatically build and publish to PyPI
 6. Create GitHub Release with changelog notes

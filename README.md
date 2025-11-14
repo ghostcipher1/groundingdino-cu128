@@ -13,6 +13,41 @@
 
 ---
 
+## 📌 Important: Versioning Change
+
+> **Version Format Update**: This project now uses **year-based versioning** (e.g., `2025.2.1`) instead of semantic versioning (e.g., `0.2.1`).
+
+### Why the Change?
+
+The versioning scheme was updated to **year.major.minor** format for several important reasons:
+
+1. **Clear Release Context**: The year prefix immediately indicates when the release was made, making it easier to understand the timeline of updates and compatibility requirements.
+
+2. **Better Long-term Maintenance**: For a maintained fork that may span multiple years, year-based versioning provides better organization and prevents version number conflicts over time.
+
+3. **Industry Alignment**: Many modern projects (especially in ML/AI) use year-based versioning to clearly communicate release timelines and compatibility windows.
+
+4. **Version Clarity**: The format `2025.2.1` clearly communicates:
+   - **2025**: Release year
+   - **2**: Major version within the year
+   - **1**: Minor version/patch
+
+### What This Means for You
+
+- ✅ **No Breaking Changes**: The version format change does not affect functionality or API compatibility
+- ✅ **Same Package**: All imports and usage remain identical (`import groundingdino` still works)
+- ✅ **Backward Compatible**: Existing code continues to work without modification
+- ✅ **Clearer Updates**: Version numbers now clearly indicate release year and version progression
+
+### Version History
+
+- **Previous format**: `0.2.1`, `0.2.0` (semantic versioning)
+- **Current format**: `2025.2.1`, `2025.2.0` (year-based versioning)
+
+The functionality and API remain unchanged—only the version number format has been updated.
+
+---
+
 ### 🛡️ Branch Protection Policy
 
 The `main` branch of **GroundingDINO-CU128** is fully protected to maintain build integrity and code quality.
@@ -233,7 +268,7 @@ The Docker image includes:
 
 - `latest` - Latest stable release
 - `edge` - Latest build from main branch
-- `v0.2.0` - Specific version tags
+- `v2025.2.0` - Specific version tags
 - `main-<sha>` - Commit-specific builds
 
 ### Building Locally

@@ -20,7 +20,7 @@ def test_groundingdino_version():
     """Test that groundingdino has the correct version."""
     import groundingdino.version as version_module
     assert hasattr(version_module, '__version__')
-    assert version_module.__version__ == '0.2.1'
+    assert version_module.__version__ == '2025.2.1'
 
 
 def test_groundingdino_has_cuda_extension():
