@@ -76,7 +76,7 @@ jobs:
 
     - name: Build wheel
       run: |
-        python${{ matrix.python-version }} -m build --wheel
+        python${{ matrix.python-version }} -m build --wheel --no-isolation
         ls -lh dist/
 
     - name: Verify wheel

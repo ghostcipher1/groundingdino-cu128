@@ -15,7 +15,7 @@ extension (_C) is loaded through groundingdino._C regardless of which import
 you use.
 """
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 # Re-export everything from groundingdino
 from groundingdino import *  # noqa: F401, F403

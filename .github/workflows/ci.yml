@@ -88,7 +88,7 @@ jobs:
 
     - name: Build source distribution
       run: |
-        python -m build --sdist
+        python -m build --sdist --no-isolation
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v5
@@ -117,7 +117,7 @@ jobs:
         pip install -r requirements.txt
 
     - name: Build package
-      run: python -m build --sdist
+      run: python -m build --sdist --no-isolation
 
     - name: Check package with twine
       run: twine check dist/*
@@ -133,7 +133,7 @@ jobs:
         with open('pyproject.toml', 'rb') as f:
             config = tomllib.load(f)
         assert config['project']['name'] == 'groundingdino-cu128'
-        assert config['project']['version'] == '0.2.0'
+        assert config['project']['version'] == '0.2.1'
         assert 'ghostcipher1' in config['project']['authors'][0]['name'].lower()
         print('✓ Package metadata validated')
         "

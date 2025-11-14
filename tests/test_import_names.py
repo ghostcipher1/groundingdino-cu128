@@ -29,7 +29,7 @@ def test_import_shadow_dino():
 
     # Should re-export version
     assert hasattr(shadow_dino, "__version__"), "shadow_dino missing __version__"
-    assert shadow_dino.__version__ == "0.2.0"
+    assert shadow_dino.__version__ == "0.2.1"
 
     # Should have cuda availability flag
     assert hasattr(shadow_dino, "__cuda_available__"), "shadow_dino missing __cuda_available__"

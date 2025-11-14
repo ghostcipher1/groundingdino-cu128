@@ -24,12 +24,20 @@ import glob
 import os
 import subprocess
 
-import torch
 from setuptools import find_packages, setup
-from torch.utils.cpp_extension import CUDA_HOME, CppExtension, CUDAExtension
+
+try:
+    import torch
+    from torch.utils.cpp_extension import CUDA_HOME, CppExtension, CUDAExtension
+    TORCH_AVAILABLE = True
+except ImportError:
+    TORCH_AVAILABLE = False
+    CUDA_HOME = None
+    CppExtension = None
+    CUDAExtension = None
 
 # groundingdino version info
-version = "0.2.0"
+version = "0.2.1"
 package_name = "groundingdino-cu128"
 cwd = os.path.dirname(os.path.abspath(__file__))
 
@@ -50,10 +58,21 @@ def write_version_file():
 
 requirements = ["torch", "torchvision"]
 
-torch_ver = [int(x) for x in torch.__version__.split(".")[:2]]
+# Only check torch version if torch is available
+if TORCH_AVAILABLE:
+    torch_ver = [int(x) for x in torch.__version__.split(".")[:2]]
+else:
+    torch_ver = None
 
 
 def get_extensions():
+    # If torch is not available, skip building extensions
+    # Extensions will be built when torch is installed
+    if not TORCH_AVAILABLE:
+        print("PyTorch not found. Skipping C++ extension compilation.")
+        print("Extensions will be compiled on first import if CUDA is available.")
+        return []
+
     this_dir = os.path.dirname(os.path.abspath(__file__))
     extensions_dir = os.path.join(this_dir, "groundingdino", "models", "GroundingDINO", "csrc")
 
@@ -85,7 +104,7 @@ def get_extensions():
         print("Compiling without CUDA")
         define_macros += [("WITH_HIP", None)]
         extra_compile_args["nvcc"] = []
-        return None
+        return []
 
     sources = [os.path.join(extensions_dir, s) for s in sources]
     include_dirs = [extensions_dir]
@@ -188,7 +207,13 @@ if __name__ == "__main__":
 
     # Note: Most metadata is now in pyproject.toml
     # This setup.py only handles the C++ extension compilation
-    setup(
-        ext_modules=get_extensions(),
-        cmdclass={"build_ext": torch.utils.cpp_extension.BuildExtension},
-    )
+    ext_modules = get_extensions()
+
+    # Only use BuildExtension if torch is available and we have extensions
+    if TORCH_AVAILABLE and ext_modules:
+        setup(
+            ext_modules=ext_modules,
+            cmdclass={"build_ext": torch.utils.cpp_extension.BuildExtension},
+        )
+    else:
+        setup()

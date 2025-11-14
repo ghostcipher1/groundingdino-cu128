@@ -56,7 +56,7 @@ print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
 
     - name: Build source distribution
       run: |
-        python -m build --sdist
+        python -m build --sdist --no-isolation
         ls -lh dist/
 
     - name: Check distribution
