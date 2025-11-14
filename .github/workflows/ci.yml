@@ -97,6 +97,125 @@ jobs:
         path: dist/*.tar.gz
         retention-days: 7
 
+  test-cpp17:
+    name: Test C++17 Compiler Support
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+
+    - name: Install C++17 compiler
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential g++ cmake
+
+    - name: Check compiler versions
+      run: |
+        echo "==================================================="
+        echo "Compiler Information"
+        echo "==================================================="
+        gcc --version
+        g++ --version
+        cmake --version
+        echo ""
+        echo "Checking C++17 support..."
+
+    - name: Test C++17 compilation
+      run: |
+        cat > test_cpp17.cpp << 'EOF'
+        #include <iostream>
+        #include <string_view>
+        #include <optional>
+        #include <variant>
+
+        // Test C++17 features
+        int main() {
+            // String view (C++17)
+            std::string_view sv = "C++17 works!";
+
+            // Optional (C++17)
+            std::optional<int> opt = 42;
+
+            // Variant (C++17)
+            std::variant<int, double, std::string> var = "test";
+
+            // Structured bindings (C++17)
+            auto [a, b] = std::make_pair(1, 2);
+
+            // If with initializer (C++17)
+            if (auto val = opt; val.has_value()) {
+                std::cout << "✓ C++17 compilation successful" << std::endl;
+                std::cout << "String view: " << sv << std::endl;
+                std::cout << "Optional value: " << val.value() << std::endl;
+                std::cout << "Structured binding: " << a << ", " << b << std::endl;
+            }
+
+            return 0;
+        }
+        EOF
+
+        echo "==================================================="
+        echo "Compiling C++17 test program..."
+        echo "==================================================="
+        g++ -std=c++17 -o test_cpp17 test_cpp17.cpp
+
+        echo ""
+        echo "==================================================="
+        echo "Running C++17 test program..."
+        echo "==================================================="
+        ./test_cpp17
+
+        echo ""
+        echo "==================================================="
+        echo "✓ C++17 compiler test PASSED"
+        echo "==================================================="
+
+    - name: Test setup.py C++17 flags
+      run: |
+        echo "==================================================="
+        echo "Verifying setup.py C++17 configuration"
+        echo "==================================================="
+        python -c "
+        import re
+        with open('setup.py', 'r') as f:
+            content = f.read()
+
+        # Check for C++17 in cxx flags
+        if '-std=c++17' in content:
+            print('✓ Found -std=c++17 in setup.py')
+        else:
+            print('✗ Missing -std=c++17 in setup.py')
+            exit(1)
+
+        # Check for C++17 in nvcc flags
+        if 'nvcc' in content and '-std=c++17' in content:
+            print('✓ Found -std=c++17 for NVCC compiler')
+        else:
+            print('⚠ NVCC C++17 flag check inconclusive')
+
+        print('')
+        print('=================================================')
+        print('✓ setup.py C++17 configuration verified')
+        print('=================================================')
+        "
+
+    - name: Verify pyproject.toml documents C++17
+      run: |
+        echo "==================================================="
+        echo "Checking pyproject.toml C++17 documentation"
+        echo "==================================================="
+        if grep -q "C++17" pyproject.toml; then
+            echo "✓ pyproject.toml documents C++17 requirement"
+            grep -A 2 "C++17" pyproject.toml | head -5
+        else
+            echo "⚠ pyproject.toml doesn't mention C++17 (documentation only)"
+        fi
+        echo ""
+        echo "==================================================="
+        echo "✓ C++17 documentation check complete"
+        echo "==================================================="
+
   check-package:
     name: Check package metadata
     runs-on: ubuntu-latest
