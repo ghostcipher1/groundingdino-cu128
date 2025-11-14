@@ -1,13 +1,13 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel", "torch>=2.7.0,<2.8"]
+requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "groundingdino-cu128"
-version = "0.2.0"
+version = "0.2.1"
 description = "Upgraded GroundingDINO for PyTorch 2.7 + CUDA 12.8 (maintained fork)"
 readme = "README.md"
-license = { file = "LICENSE" }
+license = { text = "Apache-2.0" }
 requires-python = ">=3.9"
 authors = [
     { name = "ghostcipher1", email = "ghostcipher1@users.noreply.github.com" }
@@ -41,14 +41,41 @@ classifiers = [
 dependencies = [
     "torch>=2.7.0,<2.8",
     "torchvision>=0.18.0",
-    "transformers",
-    "addict",
-    "yapf",
-    "timm",
-    "numpy",
-    "opencv-python",
-    "supervision==0.4.0",
-    "pycocotools",
+    "transformers>=4.0",
+    "addict>=2.0",
+    "yapf>=0.30",
+    "timm>=0.6",
+    "numpy>=1.19",
+    "opencv-python>=4.5",
+    "supervision>=0.4.0",
+    "pycocotools>=2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "flake8>=6.0",
+    "black>=23.0",
+    "isort>=5.12",
+    "mypy>=1.0",
+    "pylint>=2.17",
+    "bandit>=1.7",
+    "safety>=2.3",
+    "build>=1.0",
+    "twine>=4.0",
+]
+onnx = [
+    "onnx>=1.12",
+    "onnxruntime>=1.14",
+]
+trt = [
+    # TensorRT support - requires NVIDIA TensorRT SDK installed
+    # Install separately: https://developer.nvidia.com/tensorrt
+]
+jetson = [
+    # JetPack runtime compatibility
+    # Install JetPack SDK separately: https://developer.nvidia.com/embedded/jetpack
 ]
 
 [project.urls]

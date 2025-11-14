@@ -20,7 +20,7 @@ def test_groundingdino_version():
     """Test that groundingdino has the correct version."""
     import groundingdino.version as version_module
     assert hasattr(version_module, '__version__')
-    assert version_module.__version__ == '0.2.0'
+    assert version_module.__version__ == '0.2.1'
 
 
 def test_groundingdino_has_cuda_extension():
@@ -41,6 +41,18 @@ def test_import_util():
     """Test that groundingdino.util can be imported."""
     from groundingdino import util
     assert util is not None
+
+
+def test_import_datasets():
+    """Test that groundingdino.datasets can be imported."""
+    from groundingdino import datasets
+    assert datasets is not None
+
+
+def test_import_datasets_transforms():
+    """Test that groundingdino.datasets.transforms can be imported."""
+    from groundingdino.datasets import transforms
+    assert transforms is not None
 
 
 if __name__ == "__main__":

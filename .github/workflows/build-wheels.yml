@@ -71,12 +71,12 @@ jobs:
     - name: Install build dependencies
       run: |
         python${{ matrix.python-version }} -m pip install \
-          build wheel setuptools ninja
+          setuptools>=68 wheel build ninja
         python${{ matrix.python-version }} -m pip install -r requirements.txt
 
     - name: Build wheel
       run: |
-        python${{ matrix.python-version }} -m build --wheel
+        python${{ matrix.python-version }} -m build --wheel --no-isolation
         ls -lh dist/
 
     - name: Verify wheel

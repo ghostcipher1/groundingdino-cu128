@@ -1,0 +1,9 @@
+# constraints.txt
+# Strict dependency version pins for reproducible environments
+# Use with: pip install -c constraints.txt .[dev]
+#
+# These pins are moved from pyproject.toml to allow flexibility
+# while still providing reproducibility when needed.
+
+# Core dependencies - strict pins
+supervision==0.4.0

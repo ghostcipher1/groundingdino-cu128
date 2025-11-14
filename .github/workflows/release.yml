@@ -35,7 +35,7 @@ jobs:
     - name: Install build dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install build twine
+        pip install setuptools>=68 wheel build twine
         pip install -r requirements.txt
 
     - name: Verify version matches tag
@@ -43,20 +43,24 @@ jobs:
       run: |
         pip install tomli
         TAG_VERSION="${GITHUB_REF#refs/tags/v}"
-        PACKAGE_VERSION=$(python -c "try:
-    import tomllib
-except ImportError:
-    import tomli as tomllib
-print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
-        if [ "$TAG_VERSION" != "$PACKAGE_VERSION" ]; then
-          echo "Error: Tag version ($TAG_VERSION) does not match package version ($PACKAGE_VERSION)"
-          exit 1
-        fi
-        echo "✓ Version verified: $PACKAGE_VERSION"
+        python -c "
+        import sys
+        try:
+            import tomllib
+        except ImportError:
+            import tomli as tomllib
+        with open('pyproject.toml', 'rb') as f:
+            version = tomllib.load(f)['project']['version']
+        tag_version = '$TAG_VERSION'
+        if tag_version != version:
+            print(f'Error: Tag version ({tag_version}) does not match package version ({version})')
+            sys.exit(1)
+        print(f'✓ Version verified: {version}')
+        "
 
     - name: Build source distribution
       run: |
-        python -m build --sdist
+        python -m build --sdist --no-isolation
         ls -lh dist/
 
     - name: Check distribution
@@ -80,14 +84,11 @@ print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
 
     - name: Create release summary
       run: |
+        VERSION=$(python -c "try: import tomllib;except: import tomli as tomllib;print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
         echo "## 📦 Release Summary" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "**Package:** groundingdino-cu128" >> $GITHUB_STEP_SUMMARY
-        echo "**Version:** $(python -c "try:
-    import tomllib
-except ImportError:
-    import tomli as tomllib
-print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")" >> $GITHUB_STEP_SUMMARY
+        echo "**Version:** $VERSION" >> $GITHUB_STEP_SUMMARY
         echo "**Python Support:** 3.9, 3.10, 3.11, 3.12" >> $GITHUB_STEP_SUMMARY
         echo "**CUDA Support:** 12.6, 12.8" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY

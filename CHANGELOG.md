@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2025-11-13
+
+### Fixed
+- **GitHub Actions build failures** - Fixed `CalledProcessError` during package build in CI/CD pipelines
+  - Removed PyTorch from `build-system.requires` in pyproject.toml
+  - Made PyTorch import optional in setup.py during build phase
+  - Added `--no-isolation` flag to all build commands in GitHub Actions workflows
+  - Package can now be built without PyTorch pre-installed (CUDA extensions compile during user installation)
+- **Missing datasets module** - Added `groundingdino/datasets/__init__.py` to fix `ModuleNotFoundError` when importing `groundingdino.datasets` (#11)
+
+### Changed
+- Build system now gracefully handles missing PyTorch during package creation
+- CUDA extensions are compiled during installation (when PyTorch is available) rather than during build
+- Updated CI/CD workflows (ci.yml, build-wheels.yml, release.yml) to use non-isolated builds
+- Added C++17 compiler standard for better compatibility and modern features
+- Enhanced build messages with clear requirements and troubleshooting information
+
+### Technical Details
+- Build requirements reduced to: `setuptools>=68`, `wheel` only
+- PyTorch remains a runtime dependency (installed automatically via pip)
+- Backward compatible - no changes to user installation process
+- Tests remain passing with relaxed CUDA extension checks
+
 ## [0.2.0] - 2025-11-08
 
 ### Added

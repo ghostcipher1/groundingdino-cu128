@@ -137,6 +137,42 @@ cd groundingdino-cu128
 pip install -e .
 ```
 
+### Optional Extras
+
+The package supports several optional dependency groups for different use cases:
+
+```bash
+# Development tools (linting, testing, formatting)
+pip install groundingdino-cu128[dev]
+
+# ONNX export and runtime support
+pip install groundingdino-cu128[onnx]
+
+# All extras at once
+pip install groundingdino-cu128[dev,onnx]
+```
+
+**Note:** TensorRT (`trt`) and Jetson (`jetson`) extras are placeholders for future support. These require external SDKs to be installed separately.
+
+### Reproducible Environments
+
+For reproducible environments with pinned dependency versions, use the included `constraints.txt`:
+
+```bash
+# Install with strict version pins
+pip install -c constraints.txt groundingdino-cu128
+
+# Install with extras and constraints
+pip install -c constraints.txt groundingdino-cu128[dev]
+
+# For development from source
+git clone https://github.com/ghostcipher1/groundingdino-cu128.git
+cd groundingdino-cu128
+pip install -c constraints.txt -e .[dev]
+```
+
+The `constraints.txt` file pins specific versions of dependencies that have been tested together, ensuring consistent behavior across different environments.
+
 ### Requirements
 
 - **NVIDIA CUDA Toolkit 12.6 or 12.8** (required before installation)

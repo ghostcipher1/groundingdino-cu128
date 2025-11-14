@@ -24,12 +24,20 @@ import glob
 import os
 import subprocess
 
-import torch
 from setuptools import find_packages, setup
-from torch.utils.cpp_extension import CUDA_HOME, CppExtension, CUDAExtension
+
+try:
+    import torch
+    from torch.utils.cpp_extension import CUDA_HOME, CppExtension, CUDAExtension
+    TORCH_AVAILABLE = True
+except ImportError:
+    TORCH_AVAILABLE = False
+    CUDA_HOME = None
+    CppExtension = None
+    CUDAExtension = None
 
 # groundingdino version info
-version = "0.2.0"
+version = "0.2.1"
 package_name = "groundingdino-cu128"
 cwd = os.path.dirname(os.path.abspath(__file__))
 
@@ -50,10 +58,23 @@ def write_version_file():
 
 requirements = ["torch", "torchvision"]
 
-torch_ver = [int(x) for x in torch.__version__.split(".")[:2]]
+# Only check torch version if torch is available
+if TORCH_AVAILABLE:
+    torch_ver = [int(x) for x in torch.__version__.split(".")[:2]]
+else:
+    torch_ver = None
 
 
 def get_extensions():
+    # If torch is not available, skip building extensions
+    # Extensions will be built when torch is installed
+    if not TORCH_AVAILABLE:
+        print("\n" + "="*70)
+        print("PyTorch not found. Skipping C++ extension compilation.")
+        print("Extensions will be compiled on first import if CUDA is available.")
+        print("="*70 + "\n")
+        return []
+
     this_dir = os.path.dirname(os.path.abspath(__file__))
     extensions_dir = os.path.join(this_dir, "groundingdino", "models", "GroundingDINO", "csrc")
 
@@ -67,25 +88,44 @@ def get_extensions():
 
     extension = CppExtension
 
-    extra_compile_args = {"cxx": []}
+    # C++17 compiler flags for better compatibility and modern features
+    extra_compile_args = {"cxx": ["-std=c++17"]}
     define_macros = []
 
     if torch.cuda.is_available() and CUDA_HOME is not None:
-        print("Compiling with CUDA")
+        print("\n" + "="*70)
+        print("Compiling with CUDA support")
+        print(f"CUDA_HOME: {CUDA_HOME}")
+        print("Using C++17 standard")
+        print("="*70 + "\n")
         extension = CUDAExtension
         sources += source_cuda
         define_macros += [("WITH_CUDA", None)]
         extra_compile_args["nvcc"] = [
+            "-std=c++17",  # C++17 support for CUDA compiler
             "-DCUDA_HAS_FP16=1",
             "-D__CUDA_NO_HALF_OPERATORS__",
             "-D__CUDA_NO_HALF_CONVERSIONS__",
             "-D__CUDA_NO_HALF2_OPERATORS__",
         ]
     else:
-        print("Compiling without CUDA")
+        print("\n" + "="*70)
+        print("CUDA not available - building in CPU-only mode")
+        if not torch.cuda.is_available():
+            print("Reason: PyTorch CUDA not detected")
+        if CUDA_HOME is None:
+            print("Reason: CUDA_HOME not set")
+        print("\nTo enable CUDA support, ensure:")
+        print("  - CUDA Toolkit 12.6 or 12.8 is installed")
+        print("  - PyTorch with CUDA support is installed")
+        print("  - C++17 compatible compiler is available:")
+        print("    * Windows: Visual Studio 2019+ with C++ build tools")
+        print("    * Linux: GCC 7+ or Clang 5+")
+        print("    * macOS: Xcode Command Line Tools")
+        print("="*70 + "\n")
         define_macros += [("WITH_HIP", None)]
         extra_compile_args["nvcc"] = []
-        return None
+        return []
 
     sources = [os.path.join(extensions_dir, s) for s in sources]
     include_dirs = [extensions_dir]
@@ -188,7 +228,13 @@ if __name__ == "__main__":
 
     # Note: Most metadata is now in pyproject.toml
     # This setup.py only handles the C++ extension compilation
-    setup(
-        ext_modules=get_extensions(),
-        cmdclass={"build_ext": torch.utils.cpp_extension.BuildExtension},
-    )
+    ext_modules = get_extensions()
+
+    # Only use BuildExtension if torch is available and we have extensions
+    if TORCH_AVAILABLE and ext_modules:
+        setup(
+            ext_modules=ext_modules,
+            cmdclass={"build_ext": torch.utils.cpp_extension.BuildExtension},
+        )
+    else:
+        setup()
