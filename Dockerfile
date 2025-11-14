@@ -12,10 +12,11 @@ RUN apt-get update && apt-get install -y \
     python3.10 \
     python3.10-dev \
     python3-pip \
-    git \
     wget \
     ninja-build \
     build-essential \
+    gcc \
+    g++ \
     && rm -rf /var/lib/apt/lists/*
 
 # Set Python 3.10 as default
@@ -28,12 +29,14 @@ RUN python -m pip install --upgrade pip setuptools wheel
 # Install PyTorch with CUDA 12.8 support
 RUN pip install torch==2.7.1 torchvision==0.22.1 --index-url https://download.pytorch.org/whl/cu128
 
-# Copy source code
-WORKDIR /build
-COPY . .
+# Set CUDA environment variables for compilation
+ENV CUDA_HOME=/usr/local/cuda
+ENV PATH=/usr/local/cuda/bin:$PATH
+ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
 
-# Build and install groundingdino-cu128 (non-editable for Docker)
-RUN pip install .
+# Install groundingdino-cu128 from PyPI
+# This will trigger prerequisite checks and compile CUDA extensions
+RUN pip install groundingdino-cu128
 
 # Stage 2: Runtime
 FROM nvidia/cuda:12.8.0-runtime-ubuntu22.04

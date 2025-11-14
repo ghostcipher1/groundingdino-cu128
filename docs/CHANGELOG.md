@@ -60,7 +60,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Attribution
 This is a maintained fork of [GroundingDINO](https://github.com/IDEA-Research/GroundingDINO) by IDEA-Research.
-Original authors and contributors are credited in the README.md.
+Original authors and contributors are credited in the README.md (root directory).
 
 ---
 
@@ -91,7 +91,7 @@ Original authors and contributors are credited in the README.md.
 ## Release Process
 
 1. Update version in `pyproject.toml`
-2. Update CHANGELOG.md with release notes
+2. Update docs/CHANGELOG.md with release notes
 3. Create git tag: `git tag -a v0.2.0 -m "Release v0.2.0"`
 4. Push tag: `git push origin v0.2.0`
 5. GitHub Actions will automatically build and publish to PyPI

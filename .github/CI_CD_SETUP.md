@@ -184,7 +184,7 @@ No environment variables required - all configuration is in `pyproject.toml`
 
 2. **Update Changelog**
    ```bash
-   # Edit CHANGELOG.md
+   # Edit docs/CHANGELOG.md
    ## [0.3.0] - 2025-XX-XX
    ### Added
    - New features...
@@ -192,7 +192,7 @@ No environment variables required - all configuration is in `pyproject.toml`
 
 3. **Commit Changes**
    ```bash
-   git add pyproject.toml CHANGELOG.md
+   git add pyproject.toml docs/CHANGELOG.md
    git commit -m "chore: bump version to 0.3.0"
    git push origin main
    ```
@@ -207,7 +207,7 @@ No environment variables required - all configuration is in `pyproject.toml`
    - Go to: Releases → Draft a new release
    - Choose tag: `v0.3.0`
    - Title: `v0.3.0`
-   - Description: Copy from CHANGELOG.md
+   - Description: Copy from docs/CHANGELOG.md
    - Click "Publish release"
 
 6. **Automated Steps**
@@ -371,7 +371,7 @@ Add to README.md:
 
 - **Issues**: Report bugs via GitHub Issues
 - **Discussions**: Ask questions in GitHub Discussions
-- **Contributing**: See CONTRIBUTING.md
+- **Contributing**: See docs/CONTRIBUTING.md
 
 ---
 

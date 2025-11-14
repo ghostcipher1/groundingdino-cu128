@@ -111,3 +111,26 @@ docs/_templates/
 
 # CI/CD
 .github/workflows/*.log
+
+# Test and verification scripts (temporary)
+verify_install.py
+test_*.py
+*_test.py
+!tests/test_*.py
+
+# Docker
+.dockerignore.bak
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# Project specific
+UNKNOWN.egg-info/

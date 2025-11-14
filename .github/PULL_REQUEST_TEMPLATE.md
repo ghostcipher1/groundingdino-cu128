@@ -72,7 +72,7 @@ pytest tests/
 
 - [ ] Updated README.md (if needed)
 - [ ] Updated docstrings
-- [ ] Updated CONTRIBUTING.md (if needed)
+- [ ] Updated docs/CONTRIBUTING.md (if needed)
 - [ ] Added comments for complex logic
 
 ## Compliance
@@ -98,5 +98,5 @@ pytest tests/
 
 **By submitting this PR, I confirm that:**
 - My contributions are made under the Apache License 2.0
-- I have read and followed the CONTRIBUTING.md guidelines
+- I have read and followed the docs/CONTRIBUTING.md guidelines
 - All CI checks have passed or I have explained why they fail
