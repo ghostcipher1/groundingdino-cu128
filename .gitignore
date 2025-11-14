@@ -86,7 +86,7 @@ logs/
 *.ckpt
 *.weights
 data/
-datasets/
+/datasets/
 checkpoints/
 weights/
 

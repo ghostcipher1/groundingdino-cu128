@@ -43,5 +43,17 @@ def test_import_util():
     assert util is not None
 
 
+def test_import_datasets():
+    """Test that groundingdino.datasets can be imported."""
+    from groundingdino import datasets
+    assert datasets is not None
+
+
+def test_import_datasets_transforms():
+    """Test that groundingdino.datasets.transforms can be imported."""
+    from groundingdino.datasets import transforms
+    assert transforms is not None
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
