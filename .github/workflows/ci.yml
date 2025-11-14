@@ -130,10 +130,20 @@ jobs:
             import tomllib
         except ImportError:
             import tomli as tomllib
+        import re
         with open('pyproject.toml', 'rb') as f:
             config = tomllib.load(f)
-        assert config['project']['name'] == 'groundingdino-cu128'
-        assert config['project']['version'] == '0.2.1'
-        assert 'ghostcipher1' in config['project']['authors'][0]['name'].lower()
-        print('✓ Package metadata validated')
+        
+        # Validate package name
+        assert config['project']['name'] == 'groundingdino-cu128', f\"Package name must be 'groundingdino-cu128', got '{config['project']['name']}'\"
+        
+        # Validate version format (year-based: YYYY.X.X)
+        version = config['project']['version']
+        version_pattern = r'^\d{4}\.\d+\.\d+$'
+        assert re.match(version_pattern, version), f\"Version must follow year-based format (YYYY.X.X), got '{version}'\"
+        
+        # Validate author
+        assert 'ghostcipher1' in config['project']['authors'][0]['name'].lower(), f\"Author must be ghostcipher1, got '{config['project']['authors'][0]['name']}'\"
+        
+        print(f'✓ Package metadata validated (version: {version})')
         "

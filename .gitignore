@@ -108,6 +108,7 @@ weights/
 docs/_build/
 docs/_static/
 docs/_templates/
+docs/PYPI_RELEASE_GUIDE.md
 
 # CI/CD
 .github/workflows/*.log
