@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "groundingdino-cu128"
-version = "2025.2.1"
+version = "2025.11.0"
 description = "Upgraded GroundingDINO for PyTorch 2.7 + CUDA 12.8 (maintained fork)"
 readme = "README.md"
 license = { text = "Apache-2.0" }

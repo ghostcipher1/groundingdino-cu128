@@ -42,7 +42,7 @@ The versioning scheme was updated to **year.major.minor** format for several imp
 ### Version History
 
 - **Previous format**: `0.2.1`, `0.2.0` (semantic versioning)
-- **Current format**: `2025.2.1`, `2025.2.0` (year-based versioning)
+- **Current format**: `2025.11.0`, `2026.1.0` (year-based versioning)
 
 The functionality and API remain unchanged—only the version number format has been updated.
 
