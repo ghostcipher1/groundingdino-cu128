@@ -15,7 +15,7 @@
 
 ## 📌 Important: Versioning Change
 
-> **Version Format Update**: This project now uses **year-based versioning** (e.g., `2025.2.1`) instead of semantic versioning (e.g., `0.2.1`).
+> **Version Format Update**: This project now uses **year-based versioning** (e.g., `2025.11.0`) instead of semantic versioning (e.g., `0.2.1`).
 
 ### Why the Change?
 
@@ -27,10 +27,10 @@ The versioning scheme was updated to **year.major.minor** format for several imp
 
 3. **Industry Alignment**: Many modern projects (especially in ML/AI) use year-based versioning to clearly communicate release timelines and compatibility windows.
 
-4. **Version Clarity**: The format `2025.2.1` clearly communicates:
+4. **Version Clarity**: The format `2025.11.0` clearly communicates:
    - **2025**: Release year
-   - **2**: Major version within the year
-   - **1**: Minor version/patch
+   - **11**: Major version within the year
+   - **0**: Minor version/patch
 
 ### What This Means for You
 
@@ -268,7 +268,7 @@ The Docker image includes:
 
 - `latest` - Latest stable release
 - `edge` - Latest build from main branch
-- `v2025.2.0` - Specific version tags
+- `v2025.11.0` - Specific version tags
 - `main-<sha>` - Commit-specific builds
 
 ### Building Locally
