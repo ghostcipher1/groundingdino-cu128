@@ -1,6 +1,6 @@
 """Version information for shadow_dino package."""
 
-__version__ = "2025.11.1"
+__version__ = "2025.11.2"
 
 def get_version():
     """
