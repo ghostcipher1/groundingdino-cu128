@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "groundingdino-cu128"
-version = "2025.11.0"
+version = "2025.11.1"
 description = "Upgraded GroundingDINO for PyTorch 2.7 + CUDA 12.8 (maintained fork)"
 readme = "README.md"
 license = { text = "Apache-2.0" }
@@ -94,7 +94,7 @@ include = ["groundingdino*", "shadow_dino*"]
 exclude = ["tests*", "demo*", "configs*"]
 
 [tool.setuptools.package-data]
-groundingdino = ["**/*.cu", "**/*.cpp", "**/*.h", "**/*.py"]
+groundingdino = ["**/*.cu", "**/*.cpp", "**/*.h", "**/*.cuh", "**/*.py"]
 shadow_dino = ["**/*.py"]
 
 # ============================================================================

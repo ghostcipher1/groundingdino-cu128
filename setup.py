@@ -40,7 +40,7 @@ except ImportError:
     CUDAExtension = None
 
 # groundingdino version info
-version = "2025.11.0"
+version = "2025.11.1"
 package_name = "groundingdino-cu128"
 cwd = os.path.dirname(os.path.abspath(__file__))
 
@@ -361,14 +361,17 @@ def get_extensions():
 
     this_dir = os.path.dirname(os.path.abspath(__file__))
     extensions_dir = os.path.join(this_dir, "groundingdino", "models", "GroundingDINO", "csrc")
+    extensions_dir = os.path.abspath(extensions_dir)  # Ensure absolute path
 
     main_source = os.path.join(extensions_dir, "vision.cpp")
-    sources = glob.glob(os.path.join(extensions_dir, "**", "*.cpp"))
-    source_cuda = glob.glob(os.path.join(extensions_dir, "**", "*.cu")) + glob.glob(
-        os.path.join(extensions_dir, "*.cu")
-    )
+    # Use recursive glob to find all .cpp files
+    sources = glob.glob(os.path.join(extensions_dir, "**", "*.cpp"), recursive=True)
+    # Use recursive glob to find all .cu files
+    source_cuda = glob.glob(os.path.join(extensions_dir, "**", "*.cu"), recursive=True)
 
-    sources = [main_source] + sources
+    # Ensure all paths are absolute
+    sources = [os.path.abspath(main_source)] + [os.path.abspath(s) for s in sources]
+    source_cuda = [os.path.abspath(s) for s in source_cuda]
 
     extension = CppExtension
 
@@ -419,29 +422,102 @@ def get_extensions():
         
         extra_compile_args["nvcc"] = nvcc_flags
     else:
-        print("\n" + "="*70)
-        print("CUDA not available - building in CPU-only mode")
-        if not torch.cuda.is_available():
-            print("Reason: PyTorch CUDA not detected")
-        if CUDA_HOME is None:
-            print("Reason: CUDA_HOME not set")
-        print("\nTo enable CUDA support, ensure:")
-        print("  - CUDA Toolkit 12.6 or 12.8 is installed")
-        print("  - PyTorch with CUDA support is installed")
-        print("  - C++17 compatible compiler is available (REQUIRED):")
-        print("    * Windows: Visual Studio 2019+ with C++ build tools")
-        print("      (MSVC 19.20+ with /std:c++17 support)")
-        print("    * Linux: GCC 7+ or Clang 5+ (with -std=c++17 support)")
-        print("    * macOS: Xcode Command Line Tools (Clang 5+ with -std=c++17)")
-        print("\n  NOTE: C++17 is mandatory for CUDA extension compilation.")
-        print("  Without C++17, the _C module will fail to compile, resulting in")
-        print("  'NameError: name '_C' is not defined' errors at runtime.")
-        print("="*70 + "\n")
-        define_macros += [("WITH_HIP", None)]
-        extra_compile_args["nvcc"] = []
-        return []
+        # Check if FORCE_CUDA is set or if CUDA Toolkit is available
+        force_cuda = os.environ.get("FORCE_CUDA", "0").lower() in ("1", "true", "yes")
+        cuda_check = check_cuda_toolkit()
+        cuda_toolkit_available = cuda_check["found"]
+        
+        # Allow CUDA compilation if:
+        # 1. FORCE_CUDA is set AND CUDA Toolkit is detected, OR
+        # 2. CUDA_HOME is set OR CUDA Toolkit is detected (even if torch.cuda.is_available() is False)
+        # This handles cases where CUDA is available but torch.cuda.is_available() returns False
+        # (e.g., during pip install in containers without GPU access, or before CUDA runtime is loaded)
+        if force_cuda or (CUDA_HOME is not None) or cuda_toolkit_available:
+            # Force CUDA compilation
+            if force_cuda:
+                print("\n" + "="*70)
+                print("FORCE_CUDA=1 detected - forcing CUDA compilation")
+                print("="*70 + "\n")
+            elif not torch.cuda.is_available():
+                print("\n" + "="*70)
+                print("WARNING: torch.cuda.is_available() returned False")
+                print("But CUDA Toolkit detected - proceeding with CUDA compilation")
+                print("This may occur during pip install when GPU is not accessible")
+                print("="*70 + "\n")
+            
+            # Use detected CUDA_HOME or find it from cuda_check
+            detected_cuda_home = CUDA_HOME
+            if detected_cuda_home is None and cuda_check["cuda_paths"]:
+                detected_cuda_home = cuda_check["cuda_paths"][0]
+                # Set environment variable so torch.utils.cpp_extension can use it
+                os.environ["CUDA_HOME"] = detected_cuda_home
+                print(f"Using detected CUDA_HOME: {detected_cuda_home}")
+            
+            if detected_cuda_home is None:
+                print("\n" + "="*70)
+                print("ERROR: CUDA_HOME not set and could not be detected")
+                print("Cannot proceed with CUDA compilation")
+                print("="*70 + "\n")
+                define_macros += [("WITH_HIP", None)]
+                extra_compile_args["nvcc"] = []
+                return []
+            
+            print("\n" + "="*70)
+            print("Compiling with CUDA support")
+            print(f"CUDA_HOME: {detected_cuda_home}")
+            print("Using C++17 standard (required for CUDA extensions)")
+            print(f"Platform: {platform.system()}")
+            print(f"C++ compiler flags: {cxx_flags}")
+            if not torch.cuda.is_available():
+                print("WARNING: torch.cuda.is_available() is False, but CUDA compilation will proceed")
+            print("="*70 + "\n")
+            
+            extension = CUDAExtension
+            sources += source_cuda
+            define_macros += [("WITH_CUDA", None)]
+            
+            # CUDA compiler (nvcc) flags - C++17 is required for CUDA compilation
+            nvcc_flags = [
+                "-std=c++17",  # C++17 support for CUDA compiler (required)
+                "-DCUDA_HAS_FP16=1",
+                "-D__CUDA_NO_HALF_OPERATORS__",
+                "-D__CUDA_NO_HALF_CONVERSIONS__",
+                "-D__CUDA_NO_HALF2_OPERATORS__",
+            ]
+            
+            # Add host compiler C++17 flag for nvcc to pass to host compiler
+            if not is_windows:
+                nvcc_flags.append("-Xcompiler=-std=c++17")
+            
+            extra_compile_args["nvcc"] = nvcc_flags
+        else:
+            print("\n" + "="*70)
+            print("CUDA not available - building in CPU-only mode")
+            if not torch.cuda.is_available():
+                print("Reason: PyTorch CUDA not detected")
+            if CUDA_HOME is None:
+                print("Reason: CUDA_HOME not set")
+            if not cuda_toolkit_available:
+                print("Reason: CUDA Toolkit not detected")
+            print("\nTo enable CUDA support, ensure:")
+            print("  - CUDA Toolkit 12.6 or 12.8 is installed")
+            print("  - PyTorch with CUDA support is installed")
+            print("  - C++17 compatible compiler is available (REQUIRED):")
+            print("    * Windows: Visual Studio 2019+ with C++ build tools")
+            print("      (MSVC 19.20+ with /std:c++17 support)")
+            print("    * Linux: GCC 7+ or Clang 5+ (with -std=c++17 support)")
+            print("    * macOS: Xcode Command Line Tools (Clang 5+ with -std=c++17)")
+            print("\n  NOTE: C++17 is mandatory for CUDA extension compilation.")
+            print("  Without C++17, the _C module will fail to compile, resulting in")
+            print("  'NameError: name '_C' is not defined' errors at runtime.")
+            print("\n  TIP: Set FORCE_CUDA=1 to force CUDA compilation if CUDA Toolkit")
+            print("  is installed but torch.cuda.is_available() returns False.")
+            print("="*70 + "\n")
+            define_macros += [("WITH_HIP", None)]
+            extra_compile_args["nvcc"] = []
+            return []
 
-    sources = [os.path.join(extensions_dir, s) for s in sources]
+    # Sources are already absolute paths, no need to join again
     include_dirs = [extensions_dir]
 
     ext_modules = [

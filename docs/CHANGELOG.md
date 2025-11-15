@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2025.11.1] - 2025-11-XX
+
+### Fixed
+- **Meta tensor compatibility**: Fixed `NotImplementedError: Cannot copy out of meta tensor` error when loading models
+  - Added `assign=True` parameter to `model.load_state_dict()` in `load_model()` function
+  - Required for PyTorch 2.7+ compatibility with meta tensors
+  - Fixes issue where models with meta tensors couldn't be loaded properly
+- **CUDA extension compilation during pip install**: Fixed critical bugs preventing CUDA extensions from compiling during installation
+  - Fixed double path joining bug in `setup.py` that created invalid source file paths (line 444)
+  - Added `FORCE_CUDA` environment variable support to force CUDA compilation when `torch.cuda.is_available()` returns False
+  - Improved CUDA detection logic to use `check_cuda_toolkit()` function, allowing compilation when CUDA Toolkit is detected even if `torch.cuda.is_available()` is False
+  - This fixes the "Failed to load custom C++ ops. Running on CPU mode Only!" warning when installing from PyPI/TestPyPI
+  - CUDA extensions now compile correctly during `pip install` in Docker containers with CUDA 12.8
+  - Added explicit inclusion of `.cuh` header files in package-data for proper compilation
+  - Improved source file collection using recursive glob patterns with absolute path handling
+
 ## [2025.11.0] - 2025-11-XX
 
 ### Changed
