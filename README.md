@@ -2,7 +2,7 @@
 
 
 ## 📌 Important: Notice
-> **This project will be deprecated due to the measures that need to be taken in order to have a stable working project based off of GroundingDINO. There will be a new repository named **NightshadeAI** which will be a new, and completely rewritten project.**
+> **This project will be deprecated due to the measures that need to be taken in order to have a stable working project based off of GroundingDINO. There will be a new repository named **[NightshadeAI](https://github.com/ghostcipher1/NightshadeAI)** which will be a new, and completely rewritten project.**
 
 
 [![CI](https://github.com/ghostcipher1/groundingdino-cu128/actions/workflows/ci.yml/badge.svg)](https://github.com/ghostcipher1/groundingdino-cu128/actions/workflows/ci.yml)
@@ -10,7 +10,6 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
 [![PyPI](https://img.shields.io/badge/PyPI-groundingdino--cu128-blue.svg)](https://pypi.org/project/groundingdino-cu128/)
-[![Docker](https://img.shields.io/badge/Docker-GHCR-blue.svg)](https://github.com/ghostcipher1/groundingdino-cu128/pkgs/container/groundingdino-cu128)
 ![Branch Protection](https://img.shields.io/badge/branch--protection-enabled-brightgreen?style=flat&logo=github)
 
 
