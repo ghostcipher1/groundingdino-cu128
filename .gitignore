@@ -109,6 +109,7 @@ docs/_build/
 docs/_static/
 docs/_templates/
 docs/PYPI_RELEASE_GUIDE.md
+Dockerfile.testpypi.standalone
 
 # CI/CD
 .github/workflows/*.log

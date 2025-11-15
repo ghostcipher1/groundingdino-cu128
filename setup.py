@@ -245,6 +245,16 @@ def prompt_user(prompt_text, default="yes"):
 
 def check_prerequisites():
     """Check for required prerequisites and prompt user if missing."""
+    # Skip during build phase - only check during actual installation
+    import os
+    # Check if we're in a build context (PEP 517 build isolation or building distributions)
+    build_commands = ["sdist", "bdist", "bdist_wheel", "bdist_egg", "build"]
+    if any(cmd in sys.argv for cmd in build_commands):
+        return  # Skip during build - prerequisites checked during installation
+    if os.environ.get("PEP517_BUILD_BACKEND") or os.environ.get("BUILDING_WHEEL"):
+        return  # Skip during build
+    
+    # Use ASCII-safe characters for Windows compatibility
     print("\n" + "="*70)
     print("Checking prerequisites for groundingdino-cu128 installation...")
     print("="*70)
@@ -257,13 +267,13 @@ def check_prerequisites():
     # Check CUDA Toolkit
     if not cuda_check["found"]:
         missing_items.append("NVIDIA CUDA Toolkit")
-        print("\n❌ NVIDIA CUDA Toolkit NOT FOUND")
+        print("\n[X] NVIDIA CUDA Toolkit NOT FOUND")
         print("   - nvcc not found in PATH")
         if not cuda_check["cuda_home"]:
             print("   - CUDA_HOME environment variable not set")
         print("   - No CUDA installation detected in common paths")
     else:
-        print("\n✓ NVIDIA CUDA Toolkit FOUND")
+        print("\n[OK] NVIDIA CUDA Toolkit FOUND")
         if cuda_check["nvcc_available"]:
             print(f"   - nvcc available: {cuda_check['nvcc_version'] or 'version detected'}")
         if cuda_check["cuda_home"]:
@@ -274,16 +284,16 @@ def check_prerequisites():
     # Check C++17 Compiler
     if not compiler_check["found"]:
         missing_items.append("C++17 compatible compiler")
-        print("\n❌ C++17 Compatible Compiler NOT FOUND")
+        print("\n[X] C++17 Compatible Compiler NOT FOUND")
         print("   - No compatible compiler detected in PATH")
     else:
-        print(f"\n✓ C++17 Compatible Compiler FOUND")
+        print(f"\n[OK] C++17 Compatible Compiler FOUND")
         print(f"   - Compiler: {compiler_check['info']}")
     
     print("="*70)
     
     if missing_items:
-        print("\n⚠️  MISSING PREREQUISITES DETECTED")
+        print("\n[WARNING] MISSING PREREQUISITES DETECTED")
         print(f"\nThe following required components are missing:")
         for item in missing_items:
             print(f"  - {item}")
@@ -326,7 +336,7 @@ def check_prerequisites():
             print("\n⚠️  Proceeding with installation despite missing prerequisites...")
             print("   Installation may fail or the package may not work correctly.\n")
     else:
-        print("\n✓ All prerequisites satisfied. Proceeding with installation...\n")
+        print("\n[OK] All prerequisites satisfied. Proceeding with installation...\n")
 
 
 # Global flag to ensure prerequisites are only checked once
