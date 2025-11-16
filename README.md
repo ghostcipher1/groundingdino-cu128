@@ -2,7 +2,7 @@
 
 
 ## 📌 Important: Notice
-> **This project will be deprecated due to the measures that need to be taken in order to have a stable working project based off of GroundingDINO. There will be a new repository named **[NightshadeAI](https://github.com/ghostcipher1/NightshadeAI)** which will be a new, and completely rewritten project.**
+> **This project will be deprecated due to the measures that need to be taken in order to have a stable working project based off of GroundingDINO. There will be a new repository named **[GroundedDINO-VL](https://github.com/ghostcipher1/GroundedDINO-VL)** which will be a new, modern successor to [GroundingDINO](https://github.com/IDEA-Research/GroundingDINO).**
 
 
 [![CI](https://github.com/ghostcipher1/groundingdino-cu128/actions/workflows/ci.yml/badge.svg)](https://github.com/ghostcipher1/groundingdino-cu128/actions/workflows/ci.yml)
